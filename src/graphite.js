@@ -1,0 +1,192 @@
+// Description:
+//   Fetch a graph from graphite via render URL, upload to a
+//   designated room, then share the URL to whichever room/user requested it.
+//
+//   The extra step is because HipChat rooms behave funny after having
+//   been renamed, so it is difficult to dynamically target a room or user
+//   via the API. Also, since we upload before sharing the link,
+//   the image is visible even in the case of an internal-only graphite
+//   that HipChat can't generate thumbnails for
+//
+// Dependencies:
+//   "request": "~2.48.0"
+//
+// Configuration:
+//   GRAPHITE_SERVER: the hostname/ip of your graphite server,
+//   GRAPH_ROOM_ID: the API ID of a HipChat room all graphs will first be uploaded to,
+//   HIPCHAT_TOKEN: an API token for your hubot can use for uploading to hipchat
+//
+// Commands:
+//   hubot graph me <graphname or render query> (from <time code>) - fetches a graph by saved name or render api querystrings
+//   hubot save grah <name> as <render query> - save a graph to hubot with the desired render api querystrings
+//   hubot list graphs - show all saved graphs
+//   hubot forget all graphs - deletes all saved graphs
+//   hubot forget graph <name> - delete the named graph
+//
+// Notes:
+//   If your Graphite is accessible by the outside world (e.g. HipChat can get to it
+//   to generate thumbnails, and users can get to the graphs wherever they are),
+//   you're probably better off using hubot-graphite.
+//
+//  This script's utility is in uploading the image to HipChat (which uploads it to S3)
+//  so HipChat can generate a thumbnail and all users can view it.
+//
+// Author:
+//   maclennann
+
+// Graphite and HipChat configuration
+var GRAPHITE_SERVER = process.env.GRAPHITE_SERVER;
+var GRAPH_ROOM_ID = process.env.GRAPH_ROOM_ID;
+var HIPCHAT_TOKEN= process.env.HIPCHAT_TOKEN;
+
+var request = require('request');
+var http = require('http');
+
+// Generate a GUID
+// Used to identify our uploaded graph message
+// when harvesting the S3 URL
+var guid = (function() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+            .toString(16)
+            .substring(1);
+    }
+    return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    };
+})();
+
+// Identify a message in the graph room containing the requested GUID
+// and send the link to the requesting room/user
+function getGraphUrl(image_id, msg) {
+    request("https://api.hipchat.com/v2/room/"+GRAPH_ROOM_ID+"/history?reverse=false&max-results=10&auth_token="+HIPCHAT_TOKEN, function(e,r,b) {
+	if(e) {
+	    msg.send("Failed to fetch graph URL from graph room. " + e);
+	    return;
+	}
+
+	var messages = JSON.parse(b)["items"];
+
+	var fileMessage = messages.filter(function(e) {
+	    return e["message"] == image_id;
+	});
+
+	if(fileMessage.length === 0) {
+	    msg.send("Failed to fetch graph URL from graph room. GUID not found.");
+	    return;
+	}
+
+	msg.send(fileMessage[0]["file"]["url"]);
+    });
+}
+
+module.exports = function(robot) {
+    
+    // Filter out graphs named <name> and save the results
+    robot.respond(/forget graph (.*)/i, function(msg) {
+	var name = msg.match[1].trim();
+
+	var graphs = robot.brain.get('graphs') || new Array();
+	var new_graphs = graphs.filter(function(e) { return e.name !== name;});
+	
+	robot.brain.set('graphs',new_graphs);
+	msg.send("(yougotitdude)");
+    });
+
+    // Empty the graphs array
+    robot.respond(/forget all graphs/i, function(msg) {
+        robot.brain.set('graphs',[]);
+	msg.send("(yougotitdude)");
+    });
+
+    robot.respond(/graph me (\w*)( from )?([-\d\w]*)$/i, function(msg) {
+        var target = msg.match[1].trim();
+	var from = msg.match[3];
+
+	var graphs = robot.brain.get('graphs') || new Array();
+
+	// See if we have a saved graph with this name
+	var target_arr = graphs.filter(function(e) { return e.name === target; });
+	if(target_arr.length > 0) {
+		target = target_arr[0].target;
+	}
+
+	// Has the user specified a time range?
+	if(from) {
+		target = target + "&from=" + from.trim();
+	}
+
+	var image_id = guid();
+	
+	// Fetch our graph from graphite
+	http.get("http://"+GRAPHITE_SERVER+"/render?format=png&"+target, function(res) {
+	    msg.send("Fetching graph and uploading to hipchat...");
+
+	    // Build our image in memory
+	    var image = '';
+	    res.setEncoding('binary');
+	    res.on('data', function(chunk) {
+	        image += chunk;
+	    });
+	
+	    res.on('end', function() {
+		// Once we have a complete image, upload it to our graph room in HipChat
+	        request({
+		    method: "POST",
+		    uri: "https://api.hipchat.com/v2/room/"+GRAPH_ROOM_ID+"/share/file?auth_token="+HIPCHAT_TOKEN,
+		    multipart: [
+                        {
+			    'content-type': 'application/json; charset=UTF-8',
+			    body: JSON.stringify({message: image_id})
+			},
+			{
+			    'content-type': 'image/png',
+			    'content-disposition': 'attachment; name="file"; filename="upload.png"',
+			    body: new Buffer(image,'binary')
+			}]
+		},
+		function(e,r,b) {
+		    if(e) {
+		        msg.send("failed to upload graph: " + error);
+			return;
+		    }
+
+		    // Once the file is uploaded,
+		    // idenfity the S3 URL and hand it back
+		    // to whoever requested it
+		    getGraphUrl(image_id,msg);
+		});
+	    });
+	});
+    });
+
+    // Save a render URL with a friendly name
+    robot.respond(/save graph (.*) as (.*)/i, function(msg) {
+        var name = msg.match[1].trim();
+	var target = msg.match[2].trim();
+
+	var graphs = robot.brain.get('graphs') || new Array();
+	if(graphs.filter(function(e){ return e.name === name;}).length !== 0) {
+            msg.send("Graph " + name + " already exists. Please have me forget this graph first.");
+            return;
+	}
+
+	graphs.push({'name':name,'target':target});
+
+	robot.brain.set('graphs', graphs);
+	msg.send('You can now use "graph me '+name+'" to see this graph');
+    });
+
+    // List all saved graphs
+    robot.respond(/list graphs/i, function(msg) {
+        var graphs = robot.brain.get('graphs') || new Array();
+	var reply = "Saved graphs found: " + graphs.length;
+		
+	graphs.forEach(function(e,i) {
+            reply += "\n"+e.name +" - " + e.target;
+        });
+		
+        msg.send(reply);
+    });
+}
