@@ -109,4 +109,4 @@ image.prototype = {
   }
 };
 
-exports.UploadImage = image;
+module.exports = image;

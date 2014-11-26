@@ -40,7 +40,7 @@ var GRAPH_ROOM_ID = process.env.GRAPH_ROOM_ID;
 var HIPCHAT_TOKEN= process.env.HIPCHAT_TOKEN;
 var SUCCESS_MESSAGE = "(yougotitdude)";
 
-var Graph = require('./graphite.js').UploadImage;
+var Graph = require('./graphite.js');
 
 module.exports = function(robot) {
 
@@ -89,11 +89,13 @@ module.exports = function(robot) {
     msg.send(SUCCESS_MESSAGE + " Fetching graph and uploading to HipChat...")
 
     graph.fetch()
-    .then(function(){
-      return graph.upload();
-    }).then(function(){
-      graph.getLink().then(msg.send);
-    });
+      .then(function(){
+        return graph.upload();
+      }).then(function(){
+        return graph.getLink();
+      }).then(function(link){
+        msg.send(link);
+      });
 
   });
 
