@@ -9,7 +9,8 @@
 //   that HipChat can't generate thumbnails for
 //
 // Dependencies:
-//   "request": "~2.48.0"
+//   "request": "~2.48.0",
+//   "node-promise": "*"
 //
 // Configuration:
 //   GRAPHITE_SERVER: the hostname/ip of your graphite server,

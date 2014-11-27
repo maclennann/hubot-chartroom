@@ -7,21 +7,16 @@ Give your Hubot its own room for piles of Graphite graphs
 
 ## Why not just use hubot-graphite
 
-Actually, you should use hubot-graphite if you can. That has support for saved graphs and is significantly faster to respond.
+Actually, you **should** use hubot-graphite if you can. That has support for saved graphs and is significantly faster to respond.
 
-However.
+However, the reason it is significantly faster to respond, is because the majority of what it does is construct a URL for the graph.
 
-Since it just constructs you a URL and puts it in the room, users with Graphite instances that are inaccessibile to HipChat 
-will not be able to take advantage of auto-generated thumbnails on the links. And if they are not in the office they will be 
-unable to click the links themselves.
+This is great if your Graphite is accessible from outside of the LAN, so HipChat can generate a thumbnail and all users in the room can get to the graph. But what makes ChartRoom different is that this actually downloads the image from Graphite and shares it via the HipChat API.
 
-This script actually downloads the image from Graphite, then shares it with a configured room in HipChat. Sharing it in HipChat
-has the side-effect of uploading it to S3. Once the file is uploaded, Hubot finds the S3 link for it and shares it back to whomever
-requested it.
+**NOTE:** This script needs a single preconfigured room to share this image with. **However** once it is posted, Hubot finds the S3 URL and shares that with the requesting user or room.
 
-This extra step of uploading it to a specific room first is to get around issues with the hubot-hipchat plugin regarding renaming
-rooms. If a room has been renamed, Hubot will be unable to locate the API ID of the room and so will be unable to share that image
-directly to the room. So now users are just expected to provide an API ID for a room in the environment variables. Images will be shared
+This extra step of uploading it to a specific room first is to get around [issues with the hubot-hipchat adapter](https://github.com/hipchat/hubot-hipchat/issues/196) regarding renaming rooms. If a room has been renamed, Hubot will be unable to locate the API ID of the room and so will be unable to share that image
+directly to the room. So users are just expected to provide an API ID for a room in the environment variables. Images will be shared
 there first, before their links are copied to the end user/room.
 
 ## Configuration

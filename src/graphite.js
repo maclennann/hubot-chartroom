@@ -31,15 +31,21 @@ function image (options) {
     this.api_token = process.env.HIPCHAT_TOKEN;
   }
 
+  // This GUID is used to idenfity the message containing
+  // the image once it has been shared in HipChat
   this.guid = generateGuid();
+
+  // This will hold the buffer with the image data
   this.image = undefined;
 
+  // All of the various URLs we'll be using.
   this.graphite_url = util.format("http://%s/render?format=png&%s", this.server, this.target);
   this.upload_url = util.format("https://api.hipchat.com/v2/room/%s/share/file?auth_token=%s", this.room_id, this.api_token);
   this.history_url = util.format("https://api.hipchat.com/v2/room/%s/history?reverse=false&max-results=10&auth_token=%s", this.room_id, this.api_token);
 };
 
 image.prototype = {
+  // Fetch the image data from Graphite and save it into a Buffer
   fetch: function() {
     var promise = new Promise();
     var me = this;
@@ -55,6 +61,7 @@ image.prototype = {
     return promise;
 
   },
+  // Share our image buffer with the predetermined HipChat room
   upload: function() {
     var me = this;
     var promise = new Promise();
@@ -65,6 +72,8 @@ image.prototype = {
       multipart: [
       {
         'content-type': 'application/json; charset=UTF-8',
+        // This GUID is used to identify this as our requested image
+        // after it has been uploaded
         body: JSON.stringify({message: me.guid})
       },
       {
@@ -83,6 +92,7 @@ image.prototype = {
 
     return promise;
   },
+  // Find the URL of the image associated with our GUID
   getLink: function() {
     var promise = new Promise();
     var me = this;
