@@ -1,3 +1,4 @@
+/*jslint node:true*/
 // Description:
 //   Fetch a graph from graphite via render URL, upload to a
 //   designated room, then share the URL to whichever room/user requested it.
@@ -38,12 +39,12 @@
 // Graphite and HipChat configuration
 var GRAPHITE_SERVER = process.env.GRAPHITE_SERVER;
 var GRAPH_ROOM_ID = process.env.GRAPH_ROOM_ID;
-var HIPCHAT_TOKEN= process.env.HIPCHAT_TOKEN;
+var HIPCHAT_TOKEN = process.env.HIPCHAT_TOKEN;
 var SUCCESS_MESSAGE = "(yougotitdude)";
 
 var Graph = require('./graphite.js');
 
-module.exports = function(robot) {
+module.exports = function (robot) {
 
   // Filter out graphs named <name> and save the results
   robot.respond(/forget graph (.*)/i, function(msg) {

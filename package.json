@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "chai": "*",
+    "jslint": "^0.6.6",
     "mocha": "*",
     "sinon": "*",
     "sinon-chai": "*"
