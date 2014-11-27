@@ -23,10 +23,10 @@
     "request": "~2.48.0"
   },
   "devDependencies": {
-    "mocha": "*",
     "chai": "*",
-    "sinon-chai": "*",
-    "sinon": "*"
+    "mocha": "*",
+    "sinon": "*",
+    "sinon-chai": "*"
   },
   "main": "index.coffee",
   "scripts": {
