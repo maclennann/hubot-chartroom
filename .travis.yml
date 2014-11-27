@@ -6,6 +6,7 @@ notifications:
   email: false
 deploy:
   provider: npm
+  email: norm.maclennan@gmail.com
   on:
     branch: master
   api_key:
