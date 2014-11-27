@@ -19,6 +19,18 @@ This extra step of uploading it to a specific room first is to get around [issue
 directly to the room. So users are just expected to provide an API ID for a room in the environment variables. Images will be shared
 there first, before their links are copied to the end user/room.
 
+## Installation
+
+Install the package from npm
+```
+$ npm install hubot-chartroom --save
+```
+
+Then edit your `external-scripts.json` to include the package
+```
+[...,'hubot-chartroom',...]
+```
+
 ## Configuration
 
 **GRAPHITE_SERVER**: the hostname/ip of your graphite server.
