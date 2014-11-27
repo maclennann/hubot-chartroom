@@ -21,7 +21,7 @@ there first, before their links are copied to the end user/room.
 
 ## Configuration
 
-**GRAPHITE_SERVER**: the hostname/ip of your graphite server
+**GRAPHITE_SERVER**: the hostname/ip of your graphite server.
 
 **GRAPH_ROOM_ID**: the API ID of a HipChat room to which all graphs will be initially shared (log into your http://[your-hipchat].hipchat.com/rooms then click your room to find it).
 
