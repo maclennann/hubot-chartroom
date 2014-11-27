@@ -2,7 +2,7 @@ var chai = require('chai');
 var sinon = require('sinon');
 chai.use(require('sinon-chai'));
 
-expect = chai.expect;
+var expect = chai.expect;
 
 describe('chartroom', function(){
   beforeEach(function(done){
