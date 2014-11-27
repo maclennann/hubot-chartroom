@@ -4,7 +4,7 @@ chai.use(require('sinon-chai'));
 
 var expect = chai.expect;
 
-describe('chartroom', function(){
+describe('chartroom should fucking work', function(){
   beforeEach(function(done){
     robot = {
       respond: sinon.spy(),
@@ -17,8 +17,11 @@ describe('chartroom', function(){
   });
 
   it('registers a respond listener', function(done) {
-    expect(robot.respond).to.have.been.calledWith(/graph me something/);
-    expect(robot.respond).to.have.been.calledWith(/save graph what as things/);
+    expect(robot.respond).to.have.been.calledWith(/list graphs/i);
+    expect(robot.respond).to.have.been.calledWith(/forget all graphs/i);
+    expect(robot.respond).to.have.been.calledWith(/forget graph (.*)/i);
+    expect(robot.respond).to.have.been.calledWith(/graph me (\w*)( from )?([-\d\w]*)$/i);
+    expect(robot.respond).to.have.been.calledWith(/save graph (.*) as (.*)/i);
     done();
   });
 });
