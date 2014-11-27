@@ -7,7 +7,6 @@ notifications:
 deploy:
   provider: npm
   on:
-    tags: true
     branch: master
   api_key:
     secure: LZs1I7NxFvtgbmCdFXCyJxR8v2BiM+URR5ffXtteq38wdghFZUPU7dLNgDaC8DqKV3lbpuvd5j1XbskUEkAIE/XyHYiVSueG4EvyPFK4jfbYNEG8wHkWqlMGfF0SzIOVRBO2LKZYalXQHgQdUwC3GcvcNoP4aMx6ViAVJlzTovY=
