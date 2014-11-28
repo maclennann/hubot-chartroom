@@ -1,4 +1,4 @@
-/*jslint node:true,unparam:true*/
+/*jslint node:true,unparam:true,todo:true*/
 /*global Promise:false*/
 'use strict';
 
@@ -24,15 +24,13 @@ var generateGuid = function () {
 function image(options) {
     if (typeof options === "object" && options.hasOwnProperty("target")) {
         this.target = options.target;
-        this.server = options.server;
-        this.room_id = options.room_id;
-        this.api_token = options.api_token;
     } else if (typeof options === "string") {
         this.target = options;
-        this.server = process.env.GRAPHITE_SERVER;
-        this.room_id = process.env.GRAPH_ROOM_ID;
-        this.api_token = process.env.HIPCHAT_TOKEN;
     }
+
+    this.server = options.server || process.env.GRAPHITE_SERVER;
+    this.room_id = options.room_id || process.env.GRAPH_ROOM_ID;
+    this.api_token = options.api_token || process.env.HIPCHAT_TOKEN;
 
     // This GUID is used to idenfity the message containing
     // the image once it has been shared in HipChat
@@ -57,9 +55,6 @@ image.prototype = {
         // through to the multipart upload - otherwise things get complicated.
         request({url: me.graphite_url, encoding: null},
             function (e, r, b) {
-                if (e) {
-                    promise.resolve(e);
-                }
                 me.image = b;
                 promise.resolve();
             });
@@ -103,6 +98,8 @@ image.prototype = {
         var promise = new PromiseClass(),
             me = this;
 
+        // Fetch some recent history from the room and try to find our
+        // image's GUID. Then harvest the file URL from the message
         request(me.history_url, function (e, r, b) {
             if (e) {
                 promise.resolve("Failed to fetch graph URL from graph room. " + e);

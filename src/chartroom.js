@@ -58,6 +58,7 @@ module.exports = function (robot) {
         msg.send(SUCCESS_MESSAGE);
     });
 
+    // Take a render URL or a saved graph name and fetch it
     robot.respond(/graph me (\S*)( from )?([\-\d\w]*)$/i, function (msg) {
         var target = msg.match[1].trim(),
             from = msg.match[3],
@@ -65,6 +66,7 @@ module.exports = function (robot) {
             target_arr = graphs.filter(function (e) { return e.name === target; }),
             graph;
 
+        // Is this one of our saved arrays?
         if (target_arr.length > 0) {
             target = target_arr[0].target;
         }
@@ -83,12 +85,16 @@ module.exports = function (robot) {
 
         msg.send(SUCCESS_MESSAGE + " Fetching graph and uploading to HipChat...");
 
+        // Fetch the graph from Graphite
         graph.fetch()
             .then(function () {
+                // Upload it to our service room
                 return graph.upload();
             }).then(function () {
+                // Harvest the S3 link
                 return graph.getLink();
             }).then(function (link) {
+                // Share it back with the requestor
                 msg.send(link);
             });
 
