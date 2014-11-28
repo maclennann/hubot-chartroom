@@ -1,34 +1,40 @@
+/*jslint node:true*/
+/*global describe:true,beforeEach:true,expect:true,it:true*/
+'use strict';
+
 var chai = require('chai');
 var sinon = require('sinon');
 
 chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
-describe('chartroom should listen for commands', function(){
-  beforeEach(function(done){
-    robot = {
-      respond: sinon.spy(),
-      hear: sinon.spy()
-    }
+describe('chartroom should listen for commands', function () {
+    var robot;
 
-    require('../src/chartroom.js')(robot)
+    beforeEach(function (done) {
+        robot = {
+            respond: sinon.spy(),
+            hear: sinon.spy()
+        };
 
-    done();
-  });
+        require('../src/chartroom.js')(robot);
 
-  it('registers a bunch of respond listeners', function(done) {
-    expect(robot.respond).to.have.been.calledWith(/list graphs/i);
-    expect(robot.respond).to.have.been.calledWith(/forget all graphs/i);
-    expect(robot.respond).to.have.been.calledWith(/forget graph (.*)/i);
-    expect(robot.respond).to.have.been.calledWith(/graph me (\w*)( from )?([-\d\w]*)$/i);
-    expect(robot.respond).to.have.been.calledWith(/save graph (.*) as (.*)/i);
-    done();
-  });
+        done();
+    });
+
+    it('registers a bunch of respond listeners', function (done) {
+        expect(robot.respond).to.have.been.calledWith(/list graphs/i);
+        expect(robot.respond).to.have.been.calledWith(/forget all graphs/i);
+        expect(robot.respond).to.have.been.calledWith(/forget graph (\w*)/i);
+        expect(robot.respond).to.have.been.calledWith(/graph me (\S*)( from )?([\-\d\w]*)$/i);
+        expect(robot.respond).to.have.been.calledWith(/save graph (\w*) as ([\S]*)/i);
+        done();
+    });
 });
 
-describe('graphite operations', function(){
+describe('graphite operations', function () {
 
-  it('should correctly construct the graphite url', function(done){
-    done();
-  });
+    it('should correctly construct the graphite url', function (done) {
+        done();
+    });
 });
