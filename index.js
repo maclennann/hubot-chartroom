@@ -4,6 +4,7 @@
 var fs = require('fs');
 var path = require('path');
 
+// I just tweaked the compiled CoffeeScript, because why not
 module.exports = function (robot, scripts) {
     var scriptsPath = path.resolve(__dirname, 'src');
     return fs.exists(scriptsPath, function (exists) {

@@ -1,35 +1,36 @@
 {
-  "name": "hubot-chartroom",
-  "description": "Download graphs from Graphite and upload them to HipChat",
-  "version": "1.0.3",
-  "author": "Norm MacLennan <norm.maclennan@gmail.com>",
-  "license": "MIT",
-  "keywords": [
-    "hubot",
-    "hubot-scripts",
-    "graphite",
-    "hipchat"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/maclennann/hubot-chartroom.git"
-  },
-  "bugs": {
-    "url": "https://github.com/maclennann/hubot-chartroom/issues"
-  },
-  "dependencies": {
-    "node-promise": "^0.5.10",
-    "request": "~2.48.0"
-  },
-  "devDependencies": {
-    "chai": "*",
-    "jslint": "^0.6.6",
-    "mocha": "*",
-    "sinon": "*",
-    "sinon-chai": "*"
-  },
-  "main": "index.js",
-  "scripts": {
-    "test": "script/test"
-  }
+    "name": "hubot-chartroom",
+    "description": "Download graphs from Graphite and upload them to HipChat",
+    "version": "1.0.3",
+    "author": "Norm MacLennan <norm.maclennan@gmail.com>",
+    "license": "MIT",
+    "keywords": [
+        "hubot",
+        "hubot-scripts",
+        "graphite",
+        "hipchat"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/maclennann/hubot-chartroom.git"
+    },
+    "bugs": {
+        "url": "https://github.com/maclennann/hubot-chartroom/issues"
+    },
+    "dependencies": {
+        "node-promise": "^0.5.10",
+        "request": "~2.48.0"
+    },
+    "devDependencies": {
+        "chai": "*",
+        "jslint": "^0.6.6",
+        "mocha": "*",
+        "sinon": "*",
+        "sinon-chai": "*"
+    },
+    "main": "index.js",
+    "scripts": {
+        "test": "script/test",
+        "lint": "./node_modules/.bin/jslint ./*.js ./src/*.js ./test/*.js"
+    }
 }
