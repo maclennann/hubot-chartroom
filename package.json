@@ -12,13 +12,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/maclennann/hubot-chartroom"
+    "url": "https://github.com/maclennann/hubot-chartroom.git"
   },
   "bugs": {
     "url": "https://github.com/maclennann/hubot-chartroom/issues"
   },
   "dependencies": {
-    "coffee-script": "~1.6",
     "node-promise": "^0.5.10",
     "request": "~2.48.0"
   },
@@ -29,7 +28,7 @@
     "sinon": "*",
     "sinon-chai": "*"
   },
-  "main": "index.coffee",
+  "main": "index.js",
   "scripts": {
     "test": "script/test"
   }

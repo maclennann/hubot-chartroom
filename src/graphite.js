@@ -1,8 +1,9 @@
-/*jslint node:true*/
+/*jslint node:true,unparam:true*/
+/*global Promise:false*/
 'use strict';
 
 var request = require('request');
-var Promise = require('node-promise').Promise;
+var PromiseClass = require('node-promise').Promise;
 var util = require('util');
 
 // Generate a GUID
@@ -49,7 +50,7 @@ function image(options) {
 image.prototype = {
     // Fetch the image data from Graphite and save it into a Buffer
     fetch: function () {
-        var promise = new Promise(),
+        var promise = new PromiseClass(),
             me = this;
 
         // Set encoding:null so we get it back as a buffer - we need that to send it
@@ -69,7 +70,7 @@ image.prototype = {
     // Share our image buffer with the predetermined HipChat room
     upload: function () {
         var me = this,
-            promise = new Promise();
+            promise = new PromiseClass();
 
         request({
             method: "POST",
@@ -99,7 +100,7 @@ image.prototype = {
     },
     // Find the URL of the image associated with our GUID
     getLink: function () {
-        var promise = new Promise(),
+        var promise = new PromiseClass(),
             me = this;
 
         request(me.history_url, function (e, r, b) {

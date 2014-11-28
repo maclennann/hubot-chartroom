@@ -1,15 +1,6 @@
-/*jslint node:true*/
-'use strict';
-
 // Description:
 //   Fetch a graph from graphite via render URL, upload to a
 //   designated room, then share the URL to whichever room/user requested it.
-//
-//   The extra step is because HipChat rooms behave funny after having
-//   been renamed, so it is difficult to dynamically target a room or user
-//   via the API. Also, since we upload before sharing the link,
-//   the image is visible even in the case of an internal-only graphite
-//   that HipChat can't generate thumbnails for
 //
 // Dependencies:
 //   "request": "~2.48.0",
@@ -38,6 +29,9 @@
 // Author:
 //   maclennann
 
+/*jslint node:true*/
+'use strict';
+
 // Graphite and HipChat configuration
 var GRAPHITE_SERVER = process.env.GRAPHITE_SERVER;
 var GRAPH_ROOM_ID = process.env.GRAPH_ROOM_ID;
@@ -64,11 +58,12 @@ module.exports = function (robot) {
         msg.send(SUCCESS_MESSAGE);
     });
 
-    robot.respond(/graph me (\w*)( from )?([\-\d\w]*)$/i, function (msg) {
+    robot.respond(/graph me (\S*)( from )?([\-\d\w]*)$/i, function (msg) {
         var target = msg.match[1].trim(),
             from = msg.match[3],
             graphs = robot.brain.get('graphs') || [],
-            target_arr = graphs.filter(function (e) { return e.name === target; });
+            target_arr = graphs.filter(function (e) { return e.name === target; }),
+            graph;
 
         if (target_arr.length > 0) {
             target = target_arr[0].target;
@@ -79,8 +74,7 @@ module.exports = function (robot) {
             target = target + "&from=" + from.trim();
         }
 
-        // Fetch our graph from graphite
-        var graph = new Graph({
+        graph = new Graph({
             target: target,
             server: GRAPHITE_SERVER,
             room_id: GRAPH_ROOM_ID,
