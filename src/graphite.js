@@ -56,6 +56,9 @@ image.prototype = {
         // through to the multipart upload - otherwise things get complicated.
         request({url: me.graphite_url, encoding: null},
             function (e, r, b) {
+                if (e) {
+                    promise.resolve(e);
+                }
                 me.image = b;
                 promise.resolve();
             });

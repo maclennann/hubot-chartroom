@@ -1,4 +1,6 @@
 /*jslint node:true*/
+'use strict';
+
 // Description:
 //   Fetch a graph from graphite via render URL, upload to a
 //   designated room, then share the URL to whichever room/user requested it.
@@ -46,87 +48,84 @@ var Graph = require('./graphite.js');
 
 module.exports = function (robot) {
 
-  // Filter out graphs named <name> and save the results
-  robot.respond(/forget graph (.*)/i, function(msg) {
-    var name = msg.match[1].trim();
+    // Filter out graphs named <name> and save the results
+    robot.respond(/forget graph (\w*)/i, function (msg) {
+        var name = msg.match[1].trim(),
+            graphs = robot.brain.get('graphs') || [],
+            new_graphs = graphs.filter(function (e) { return e.name !== name; });
 
-    var graphs = robot.brain.get('graphs') || new Array();
-    var new_graphs = graphs.filter(function(e) { return e.name !== name;});
-
-    robot.brain.set('graphs',new_graphs);
-    msg.send(SUCCESS_MESSAGE);
-  });
-
-  // Empty the graphs array
-  robot.respond(/forget all graphs/i, function(msg) {
-    robot.brain.set('graphs',[]);
-    msg.send(SUCCESS_MESSAGE);
-  });
-
-  robot.respond(/graph me (\w*)( from )?([-\d\w]*)$/i, function(msg) {
-    var target = msg.match[1].trim();
-    var from = msg.match[3];
-
-    var graphs = robot.brain.get('graphs') || new Array();
-
-    // See if we have a saved graph with this name
-    var target_arr = graphs.filter(function(e) { return e.name === target; });
-    if(target_arr.length > 0) {
-      target = target_arr[0].target;
-    }
-
-    // Has the user specified a time range?
-    if(from) {
-      target = target + "&from=" + from.trim();
-    }
-
-    // Fetch our graph from graphite
-    var graph = new Graph({
-      target: target,
-      server: GRAPHITE_SERVER,
-      room_id: GRAPH_ROOM_ID,
-      api_token: HIPCHAT_TOKEN
+        robot.brain.set('graphs', new_graphs);
+        msg.send(SUCCESS_MESSAGE);
     });
 
-    msg.send(SUCCESS_MESSAGE + " Fetching graph and uploading to HipChat...")
-
-    graph.fetch()
-      .then(function(){
-        return graph.upload();
-      }).then(function(){
-        return graph.getLink();
-      }).then(function(link){
-        msg.send(link);
-      });
-
-  });
-
-  // Save a render URL with a friendly name
-  robot.respond(/save graph (.*) as (.*)/i, function(msg) {
-    var name = msg.match[1].trim();
-    var target = msg.match[2].trim();
-
-    var graphs = robot.brain.get('graphs') || new Array();
-    if(graphs.filter(function(e){ return e.name === name;}).length !== 0) {
-      msg.send("Graph " + name + " already exists. Please have me forget this graph first.");
-      return;
-    }
-
-    graphs.push({'name':name,'target':target});
-
-    robot.brain.set('graphs', graphs);
-    msg.send('You can now use "graph me '+name+'" to see this graph');
-  });
-
-  // List all saved graphs
-  robot.respond(/list graphs/i, function(msg) {
-    var graphs = robot.brain.get('graphs') || new Array();
-    var reply = "Saved graphs found: " + graphs.length;
-
-    graphs.forEach(function(e,i) {
-      reply += "\n"+e.name +" - " + e.target;
+    // Empty the graphs array
+    robot.respond(/forget all graphs/i, function (msg) {
+        robot.brain.set('graphs', []);
+        msg.send(SUCCESS_MESSAGE);
     });
 
-    msg.send(reply);
-  });
-}
+    robot.respond(/graph me (\w*)( from )?([\-\d\w]*)$/i, function (msg) {
+        var target = msg.match[1].trim(),
+            from = msg.match[3],
+            graphs = robot.brain.get('graphs') || [],
+            target_arr = graphs.filter(function (e) { return e.name === target; });
+
+        if (target_arr.length > 0) {
+            target = target_arr[0].target;
+        }
+
+        // Has the user specified a time range?
+        if (from) {
+            target = target + "&from=" + from.trim();
+        }
+
+        // Fetch our graph from graphite
+        var graph = new Graph({
+            target: target,
+            server: GRAPHITE_SERVER,
+            room_id: GRAPH_ROOM_ID,
+            api_token: HIPCHAT_TOKEN
+        });
+
+        msg.send(SUCCESS_MESSAGE + " Fetching graph and uploading to HipChat...");
+
+        graph.fetch()
+            .then(function () {
+                return graph.upload();
+            }).then(function () {
+                return graph.getLink();
+            }).then(function (link) {
+                msg.send(link);
+            });
+
+    });
+
+    // Save a render URL with a friendly name
+    robot.respond(/save graph (\w*) as ([\S]*)/i, function (msg) {
+        var name = msg.match[1].trim(),
+            target = msg.match[2].trim(),
+            graphs = robot.brain.get('graphs') || [];
+
+        if (graphs.filter(function (e) { return e.name === name; }).length !== 0) {
+            msg.send("Graph " + name + " already exists. Please have me forget this graph first.");
+            return;
+        }
+
+        graphs.push({'name': name, 'target': target});
+
+        robot.brain.set('graphs', graphs);
+        msg.send('You can now use "graph me ' + name + '" to see this graph');
+    });
+
+    // List all saved graphs
+    robot.respond(/list graphs/i, function (msg) {
+        var graphs = robot.brain.get('graphs') || [],
+            reply = "Saved graphs found: " + graphs.length;
+
+        graphs.forEach(function (e) {
+            reply += "\n" + e.name + " - " + e.target;
+        });
+
+        msg.send(reply);
+    });
+};
