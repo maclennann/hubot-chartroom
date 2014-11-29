@@ -145,8 +145,6 @@ describe('chartroom stored graph list', function () {
         return promise;
     }
 
-
-
     it('should save graphs', function (done) {
         assertGraphs(0)
             .then(function () {
