@@ -1,5 +1,4 @@
 /*jslint node:true,unparam:true,todo:true*/
-/*global Promise:false*/
 'use strict';
 
 var request = require('request');
@@ -22,27 +21,29 @@ var generateGuid = function () {
     };
 
 function image(options) {
+    var me = this;
+
     if (typeof options === "object" && options.hasOwnProperty("target")) {
-        this.target = options.target;
+        me.target = options.target;
     } else if (typeof options === "string") {
-        this.target = options;
+        me.target = options;
     }
 
-    this.server = options.server || process.env.GRAPHITE_SERVER;
-    this.room_id = options.room_id || process.env.GRAPH_ROOM_ID;
-    this.api_token = options.api_token || process.env.HIPCHAT_TOKEN;
+    me.server = options.server || process.env.GRAPHITE_SERVER;
+    me.room_id = options.room_id || process.env.GRAPH_ROOM_ID;
+    me.api_token = options.api_token || process.env.HIPCHAT_TOKEN;
 
     // This GUID is used to idenfity the message containing
     // the image once it has been shared in HipChat
-    this.guid = options.guid || generateGuid();
+    me.guid = options.guid || generateGuid();
 
     // This will hold the buffer with the image data
-    this.image = undefined;
+    me.image = undefined;
 
     // All of the various URLs we'll be using.
-    this.graphite_url = util.format("http://%s/render?format=png&%s", this.server, this.target);
-    this.upload_url = util.format("https://api.hipchat.com/v2/room/%s/share/file?auth_token=%s", this.room_id, this.api_token);
-    this.history_url = util.format("https://api.hipchat.com/v2/room/%s/history?reverse=false&max-results=10&auth_token=%s", this.room_id, this.api_token);
+    me.graphite_url = util.format("http://%s/render?format=png&%s", me.server, me.target);
+    me.upload_url = util.format("https://api.hipchat.com/v2/room/%s/share/file?auth_token=%s", me.room_id, me.api_token);
+    me.history_url = util.format("https://api.hipchat.com/v2/room/%s/history?reverse=false&max-results=10&auth_token=%s", me.room_id, me.api_token);
 }
 
 image.prototype = {
@@ -86,7 +87,7 @@ image.prototype = {
                     body: me.image
                 }]
         },
-            function (e, r, b) {
+            function (e) {
                 if (e) {
                     promise.resolve("failed to upload graph: " + e);
                 }
