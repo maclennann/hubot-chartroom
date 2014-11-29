@@ -34,7 +34,7 @@ function image(options) {
 
     // This GUID is used to idenfity the message containing
     // the image once it has been shared in HipChat
-    this.guid = generateGuid();
+    this.guid = options.guid || generateGuid();
 
     // This will hold the buffer with the image data
     this.image = undefined;
@@ -106,6 +106,7 @@ image.prototype = {
         request(me.history_url, function (e, r, b) {
             if (e) {
                 promise.resolve("Failed to fetch graph URL from graph room. " + e);
+                return;
             }
 
             var messages = JSON.parse(b).items,
@@ -115,6 +116,7 @@ image.prototype = {
 
             if (fileMessage.length === 0) {
                 promise.resolve("Failed to fetch graph URL from graph room. GUID not found.");
+                return;
             }
 
             promise.resolve(fileMessage[0].file.url);

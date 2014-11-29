@@ -1,3 +1,4 @@
-node_modules
+node_modules/
 npm-debug.log
-.DS_STORE
+.DS_STORE/
+coverage/
