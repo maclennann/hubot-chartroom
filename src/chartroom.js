@@ -87,16 +87,9 @@ module.exports = function (robot) {
 
         // Fetch the graph from Graphite
         graph.fetch()
-            .then(function () {
-                // Upload it to our service room
-                return graph.upload();
-            }).then(function () {
-                // Harvest the S3 link
-                return graph.getLink();
-            }).then(function (link) {
-                // Share it back with the requestor
-                msg.send(link);
-            });
+            .then(graph.upload)
+            .then(graph.getLink)
+            .then(msg.send);
 
     });
 

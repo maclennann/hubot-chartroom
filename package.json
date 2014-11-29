@@ -26,7 +26,8 @@
         "jslint": "^0.6.6",
         "mocha": "*",
         "sinon": "*",
-        "sinon-chai": "*"
+        "sinon-chai": "*",
+        "nock": "~0.51.0"
     },
     "main": "index.js",
     "scripts": {

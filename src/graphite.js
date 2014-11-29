@@ -56,7 +56,10 @@ image.prototype = {
         request({url: me.graphite_url, encoding: null},
             function (e, r, b) {
                 me.image = b;
-                promise.resolve();
+
+                // Return the buffer to the user in case they want
+                // to write to file or something
+                promise.resolve(me.image);
             });
 
         return promise;
