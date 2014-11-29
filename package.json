@@ -30,7 +30,8 @@
         "nock": "~0.51.0",
         "istanbul": "~0.3.2",
         "hubot-mock-adapter": "~1.0.0",
-        "codeclimate-test-reporter": "0.0.4"
+        "codeclimate-test-reporter": "0.0.4",
+        "coffee-script": "~1.8.0"
     },
     "main": "index.js",
     "scripts": {
