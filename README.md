@@ -5,7 +5,11 @@ Give your Hubot its own room for piles of Graphite graphs
 
 [![Build Status](https://travis-ci.org/maclennann/hubot-chartroom.png)](https://travis-ci.org/maclennann/hubot-chartroom)
 [![Code Climate](https://d3s6mut3hikguw.cloudfront.net/github/maclennann/hubot-chartroom/badges/gpa.svg)](https://codeclimate.com/github/maclennann/hubotchartroom)
-[![Code Climate](https://d3s6mut3hikguw.cloudfront.net/github/maclennann/hubot-chartroom/badges/coverage.svg)](https://codeclimate.com/github/maclennann/hubotchartroom)
+[![Code Coverage](https://d3s6mut3hikguw.cloudfront.net/github/maclennann/hubot-chartroom/badges/coverage.svg)](https://codeclimate.com/github/maclennann/hubotchartroom)
+
+[![Downloads](https://img.shields.io/npm/dm/hubot-chartroom.svg)](https://www.npmjs.org/package/hubot-chartroom)
+[![Version](https://img.shields.io/npm/v/hubot-chartroom.svg)](https://www.npmjs.org/package/hubot-chartroom)
+[![License](https://img.shields.io/npm/l/hubot-chartroom.svg)](https://www.npmjs.org/package/hubot-chartroom)
 
 ## Why not just use hubot-graphite
 
@@ -45,6 +49,10 @@ Then edit your `external-scripts.json` to include the package
 
 **HIPCHAT_TOKEN**: an API token for your hubot can use for uploading to hipchat.
 * You need to log into hipchat.com as your hubot, click Edit Profile, then click API to generate your token.
+
+(optional)
+
+**SUCCESS_MESSAGE**: What hubot says after it has completed a message. Defaults to `(yougotitdude)`
 
 ## Use
 
