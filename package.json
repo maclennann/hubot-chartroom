@@ -28,11 +28,12 @@
         "sinon": "*",
         "sinon-chai": "*",
         "nock": "~0.51.0",
-        "istanbul": "~0.3.2"
+        "istanbul": "~0.3.2",
+        "hubot-mock-adapter": "~1.0.0"
     },
     "main": "index.js",
     "scripts": {
-        "test": "script/test",
+        "test": "./node_modules/.bin/istanbul cover ./node_modules/.bin/_mocha",
         "lint": "./node_modules/.bin/jslint ./*.js ./src/*.js ./test/*.js"
     }
 }

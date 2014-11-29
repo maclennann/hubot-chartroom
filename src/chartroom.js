@@ -41,7 +41,6 @@ var SUCCESS_MESSAGE = "(yougotitdude)";
 var Graph = require('./graphite.js');
 
 module.exports = function (robot) {
-
     // Filter out graphs named <name> and save the results
     robot.respond(/forget graph (\w*)/i, function (msg) {
         var name = msg.match[1].trim(),
