@@ -25,6 +25,12 @@ This extra step of uploading it to a specific room first is to get around [issue
 directly to the room. So users are just expected to provide an API ID for a room in the environment variables. Images will be shared
 there first, before their links are copied to the end user/room.
 
+## Do I need to use to HipChat adapter?
+
+Well...kind of. Mostly. All of the actual messaging stuff it does is adapter independent. But it uses the HipChat API to get the images up onto the Internet first, then to find the S3 URL for the images. Everything other than that is adapter independent.
+
+So you could, in theory, use any adapter you wanted, as long as you also had valid HipChat API information.
+
 ## Installation
 
 Install the package from npm
