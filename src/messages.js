@@ -12,5 +12,11 @@ module.exports = {
     listItem: '\n--> %s - %s',
     success: process.env.SUCCESS_MESSAGE || '(yougotitdude)',
     badGuid: 'Non-random GUID: %s',
-    guidNotFound: 'Failed to fetch graph URL from graph room. GUID not found.'
+    guidNotFound: 'Failed to fetch graph URL from graph room. GUID not found.',
+
+    urls: {
+        graphite: 'http://%s/render?format=png&%s',
+        upload: 'https://api.hipchat.com/v2/room/%s/share/file?auth_token=%s',
+        history: 'https://api.hipchat.com/v2/room/%s/history?reverse=false&max-results=10&auth_token=%s'
+    }
 };

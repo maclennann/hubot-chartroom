@@ -49,9 +49,9 @@ function image(options) {
     me.guid = options.guid || generateGuid();
 
     // All of the various URLs we'll be using.
-    me.graphiteUrl = util.format("http://%s/render?format=png&%s", me.server);
-    me.uploadUrl = util.format("https://api.hipchat.com/v2/room/%s/share/file?auth_token=%s", me.roomId, me.apiToken);
-    me.historyUrl = util.format("https://api.hipchat.com/v2/room/%s/history?reverse=false&max-results=10&auth_token=%s", me.roomId, me.apiToken);
+    me.graphiteUrl = util.format(messages.urls.graphite, me.server);
+    me.uploadUrl = util.format(messages.urls.upload, me.roomId, me.apiToken);
+    me.historyUrl = util.format(messages.urls.history, me.roomId, me.apiToken);
 }
 
 image.prototype = {
