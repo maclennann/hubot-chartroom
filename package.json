@@ -19,7 +19,7 @@
     },
     "dependencies": {
         "node-promise": "^0.5.10",
-        "request": "~2.48.0"
+        "request": "^2.48.0"
     },
     "devDependencies": {
         "chai": "*",
