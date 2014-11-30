@@ -42,11 +42,10 @@ describe('graphite operations', function () {
 
     it('should fetch a buffer for the graph', function (done) {
         var graph = new Graph({
-            target: GOOD_TARGET,
             server: GRAPHITE_SERVER
         });
 
-        graph.fetch().then(function (image) {
+        graph.fetch(GOOD_TARGET).then(function (image) {
             var expected = fs.readFileSync(TEST_FILE);
 
             expect(image.toString()).to.equal(expected.toString());
@@ -56,11 +55,10 @@ describe('graphite operations', function () {
 
     it('should return undefined if it cannot fetch the graph', function (done) {
         var graph = new Graph({
-            target: BAD_TARGET,
             server: GRAPHITE_SERVER
         });
 
-        graph.fetch().then(function (image) {
+        graph.fetch(BAD_TARGET).then(function (image) {
             expect(image).to.be.undefined();
             done();
         });
@@ -68,7 +66,6 @@ describe('graphite operations', function () {
 
     it('should get the link for its uploaded image by GUID', function (done) {
         var graph = new Graph({
-            target: GOOD_TARGET,
             server: GRAPHITE_SERVER,
             roomId: ROOM_ID,
             apiToken: API_TOKEN,
@@ -83,7 +80,6 @@ describe('graphite operations', function () {
 
     it('should return an error if it can\'t find our link by GUID', function (done) {
         var graph = new Graph({
-            target: GOOD_TARGET,
             server: GRAPHITE_SERVER,
             roomId: ROOM_ID,
             apiYoken: API_TOKEN,
@@ -98,10 +94,9 @@ describe('graphite operations', function () {
 
     it('should use environment variable where no overrides are provided', function (done) {
         // EnvVars are set in `.env` at the root of this project
-        var target = "target=local", graph;
-        graph = new Graph(target);
+        var graph = new Graph();
 
-        expect(graph.target).to.be.equal(target);
+        //expect(graph.target).to.be.equal(target);
         expect(graph.server).to.be.equal(process.env.GRAPHITE_SERVER);
         expect(graph.roomId).to.be.equal(process.env.GRAPH_ROOM_ID);
         expect(graph.apiToken).to.be.equal(process.env.HIPCHAT_TOKEN);
@@ -113,12 +108,6 @@ describe('graphite operations', function () {
         var graph = new Graph(GOOD_TARGET);
         expect(graph.guid).to.match(/[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/i);
 
-        done();
-    });
-
-    it('should return undefined when no target is provided', function (done) {
-        var graph = new Graph();
-        expect(graph).to.be.empty();
         done();
     });
 });

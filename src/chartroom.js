@@ -38,22 +38,23 @@ var GRAPH_ROOM_ID = process.env.GRAPH_ROOM_ID;
 var HIPCHAT_TOKEN = process.env.HIPCHAT_TOKEN;
 var SUCCESS_MESSAGE = "(yougotitdude)";
 
-var Graph = require('./graphite.js');
+var Graph = require('./graphite.js'),
+    brain = require('./brainOperations.js');
 
 module.exports = function (robot) {
     // Filter out graphs named <name> and save the results
     robot.respond(/forget graph (\w*)/i, function (msg) {
         var name = msg.match[1].trim(),
-            graphs = robot.brain.get('graphs') || [],
+            graphs = brain.getGraphs(robot),
             newGraphs = graphs.filter(function (e) { return e.name !== name; });
 
-        robot.brain.set('graphs', newGraphs);
+        brain.setGraphs(robot, newGraphs);
         msg.send(SUCCESS_MESSAGE);
     });
 
     // Empty the graphs array
     robot.respond(/forget all graphs/i, function (msg) {
-        robot.brain.set('graphs', []);
+        brain.setGraphs(robot, []);
         msg.send(SUCCESS_MESSAGE);
     });
 
@@ -61,36 +62,28 @@ module.exports = function (robot) {
     robot.respond(/graph me (\S*)( from )?([\-\d\w]*)$/i, function (msg) {
         var target = msg.match[1].trim(),
             from = msg.match[3],
-            graphs = robot.brain.get('graphs') || [],
-            targetArr = graphs.filter(function (e) { return e.name === target; }),
-            graph;
+            // Construct our image repository
+            graph = new Graph({
+                server: GRAPHITE_SERVER,
+                roomId: GRAPH_ROOM_ID,
+                apiToken: HIPCHAT_TOKEN
+            });
 
-        // Is this one of our saved arrays?
-        if (targetArr.length > 0) {
-            target = targetArr[0].target;
-        }
-
-        // Has the user specified a time range?
-        if (from && from !== "undefined") {
-            target = target + "&from=" + from.trim();
-        }
-
-        graph = new Graph({
-            target: target,
-            server: GRAPHITE_SERVER,
-            roomId: GRAPH_ROOM_ID,
-            apiToken: HIPCHAT_TOKEN
-        });
+        // Figure out our intended render URL QSPs
+        target = brain.getIntendedTarget(target, from, robot);
 
         msg.send(SUCCESS_MESSAGE + " Fetching graph and uploading to HipChat...");
 
         // Fetch the graph from Graphite
-        graph.fetch()
-            .then(function () {
-                return graph.upload();
+        // Upload it to the Chart Room
+        // Find the S3 URL
+        // Return that to our requestor
+        graph.fetch(target)
+            .then(function (buffer) {
+                return graph.upload(buffer);
             })
-            .then(function () {
-                return graph.getLink();
+            .then(function (guid) {
+                return graph.getLink(guid);
             })
             .then(function (link) {
                 msg.send(link);
@@ -101,23 +94,20 @@ module.exports = function (robot) {
     // Save a render URL with a friendly name
     robot.respond(/save graph (\w*) as ([\S]*)/i, function (msg) {
         var name = msg.match[1].trim(),
-            target = msg.match[2].trim(),
-            graphs = robot.brain.get('graphs') || [];
+            target = msg.match[2].trim();
 
-        if (graphs.filter(function (e) { return e.name === name; }).length !== 0) {
+        if (brain.maybeGetSavedTarget(name, robot).length !== 0) {
             msg.send("Graph " + name + " already exists. Please have me forget this graph first.");
             return;
         }
 
-        graphs.push({'name': name, 'target': target});
-
-        robot.brain.set('graphs', graphs);
+        brain.saveNewTarget(name, target, robot);
         msg.send('You can now use "graph me ' + name + '" to see this graph');
     });
 
     // List all saved graphs
     robot.respond(/list graphs/i, function (msg) {
-        var graphs = robot.brain.get('graphs') || [],
+        var graphs = brain.getGraphs(robot),
             reply = "Saved graphs found: " + graphs.length;
 
         graphs.forEach(function (e) {
