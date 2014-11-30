@@ -37,8 +37,8 @@ function image(options) {
     }
 
     me.server = options.server || process.env.GRAPHITE_SERVER;
-    me.room_id = options.room_id || process.env.GRAPH_ROOM_ID;
-    me.api_token = options.api_token || process.env.HIPCHAT_TOKEN;
+    me.roomId = options.roomId || process.env.GRAPH_ROOM_ID;
+    me.apiToken = options.apiToken || process.env.HIPCHAT_TOKEN;
 
     // This GUID is used to idenfity the message containing
     // the image once it has been shared in HipChat
@@ -48,9 +48,9 @@ function image(options) {
     me.image = undefined;
 
     // All of the various URLs we'll be using.
-    me.graphite_url = util.format("http://%s/render?format=png&%s", me.server, me.target);
-    me.upload_url = util.format("https://api.hipchat.com/v2/room/%s/share/file?auth_token=%s", me.room_id, me.api_token);
-    me.history_url = util.format("https://api.hipchat.com/v2/room/%s/history?reverse=false&max-results=10&auth_token=%s", me.room_id, me.api_token);
+    me.graphiteUrl = util.format("http://%s/render?format=png&%s", me.server, me.target);
+    me.uploadUrl = util.format("https://api.hipchat.com/v2/room/%s/share/file?auth_token=%s", me.roomId, me.apiToken);
+    me.historyUrl = util.format("https://api.hipchat.com/v2/room/%s/history?reverse=false&max-results=10&auth_token=%s", me.roomId, me.apiToken);
 }
 
 image.prototype = {
@@ -61,7 +61,7 @@ image.prototype = {
 
         // Set encoding:null so we get it back as a buffer - we need that to send it
         // through to the multipart upload - otherwise things get complicated.
-        request({url: me.graphite_url, encoding: null},
+        request({url: me.graphiteUrl, encoding: null},
             function (e, r, b) {
                 me.image = b;
 
@@ -80,7 +80,7 @@ image.prototype = {
 
         request({
             method: "POST",
-            uri: me.upload_url,
+            uri: me.uploadUrl,
             multipart: [
                 {
                     'content-type': 'application/json; charset=UTF-8',
@@ -107,7 +107,7 @@ image.prototype = {
 
         // Fetch some recent history from the room and try to find our
         // image's GUID. Then harvest the file URL from the message
-        request(me.history_url, function (e, r, b) {
+        request(me.historyUrl, function (e, r, b) {
             var messages = JSON.parse(b).items,
                 fileMessage = messages.filter(function (e) {
                     return e.message === me.guid;

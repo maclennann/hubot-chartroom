@@ -2,8 +2,7 @@
 /*global exports:true*/
 'use strict';
 
-var nock = require('nock'),
-    fs = require('fs');
+var nock = require('nock');
 
 exports.setUp = function (options) {
     // Mock HTTP response for graphite calls.

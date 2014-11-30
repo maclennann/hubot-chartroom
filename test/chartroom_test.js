@@ -32,8 +32,8 @@ describe('chartroom setup', function () {
 });
 
 describe('chartroom stored graph list', function () {
-    var robot_helpers = require('./chartroom_test_helpers'),
-        http_helpers = require('./http_mock_helpers'),
+    var robotHelpers = require('./chartroom_test_helpers'),
+        httpHelpers = require('./http_mock_helpers'),
         GRAPHITE_SERVER = process.env.GRAPHITE_SERVER,
         GOOD_TARGET = "target=test",
         ROOM_ID = process.env.GRAPH_ROOM_ID,
@@ -42,8 +42,8 @@ describe('chartroom stored graph list', function () {
         GUID = 'im-a-good-guid';
 
     beforeEach(function (done) {
-        robot_helpers.setUp();
-        http_helpers.setUp({
+        robotHelpers.setUp();
+        httpHelpers.setUp({
             GRAPHITE_SERVER: GRAPHITE_SERVER,
             GOOD_TARGET: GOOD_TARGET,
             ROOM_ID: ROOM_ID,
@@ -55,25 +55,25 @@ describe('chartroom stored graph list', function () {
     });
 
     afterEach(function () {
-        robot_helpers.tearDown();
-        http_helpers.tearDown();
+        robotHelpers.tearDown();
+        httpHelpers.tearDown();
     });
 
     it('should save graphs', function (done) {
-        robot_helpers.assertGraphs(0)
+        robotHelpers.assertGraphs(0)
             .then(function () {
-                return robot_helpers.assertSaveGraph("target=lol", "lolgraph");
+                return robotHelpers.assertSaveGraph("target=lol", "lolgraph");
             })
             .then(function () {
-                robot_helpers.assertGraphs(1);
+                robotHelpers.assertGraphs(1);
                 done();
             });
     });
 
     it('should not save two graphs with the same name', function (done) {
-        robot_helpers.assertSaveGraph('target=lol', 'lolgraph')
+        robotHelpers.assertSaveGraph('target=lol', 'lolgraph')
             .then(function () {
-                return robot_helpers.saveGraph('target=broken', 'lolgraph');
+                return robotHelpers.saveGraph('target=broken', 'lolgraph');
             })
             .then(function (strings) {
                 expect(strings[0]).to.have.string('Graph lolgraph already exists.');
@@ -82,29 +82,29 @@ describe('chartroom stored graph list', function () {
     });
 
     it('should forget graphs', function (done) {
-        robot_helpers.assertSaveGraph('target=lol', 'lolgraph')
+        robotHelpers.assertSaveGraph('target=lol', 'lolgraph')
             .then(function () {
-                return robot_helpers.assertForgetGraph('lolgraph');
+                return robotHelpers.assertForgetGraph('lolgraph');
             })
             .then(function () {
-                robot_helpers.assertGraphs(0);
+                robotHelpers.assertGraphs(0);
                 done();
             });
     });
 
     it('should forget all graphs', function (done) {
-        robot_helpers.assertSaveGraph('target=lol', 'lolgraph')
-            .then(robot_helpers.assertForgetAllGraphs)
+        robotHelpers.assertSaveGraph('target=lol', 'lolgraph')
+            .then(robotHelpers.assertForgetAllGraphs)
             .then(function () {
-                robot_helpers.assertGraphs(0);
+                robotHelpers.assertGraphs(0);
                 done();
             });
     });
 
     it('should quietly fail if graph to forget doesn\'t exist', function (done) {
-        robot_helpers.assertForgetGraph('lolgraph')
+        robotHelpers.assertForgetGraph('lolgraph')
             .then(function () {
-                robot_helpers.assertGraphs(0);
+                robotHelpers.assertGraphs(0);
                 done();
             });
     });
@@ -113,9 +113,9 @@ describe('chartroom stored graph list', function () {
         // Have our GUID generate return a known value
         process.env.DETERMINISTIC_GUID = GUID;
 
-        robot_helpers.assertSaveGraph(GOOD_TARGET, 'graph')
+        robotHelpers.assertSaveGraph(GOOD_TARGET, 'graph')
             .then(function () {
-                return robot_helpers.graphMe('graph');
+                return robotHelpers.graphMe('graph');
             })
             .then(function (strings) {
                 expect(strings[0]).to.have.string(TEST_FILE);
@@ -131,9 +131,9 @@ describe('chartroom stored graph list', function () {
         // Have our GUID generate return a known value
         process.env.DETERMINISTIC_GUID = GUID;
 
-        robot_helpers.assertSaveGraph(GOOD_TARGET, 'graph')
+        robotHelpers.assertSaveGraph(GOOD_TARGET, 'graph')
             .then(function () {
-                return robot_helpers.graphMeFrom('graph', '-2h');
+                return robotHelpers.graphMeFrom('graph', '-2h');
             })
             .then(function (strings) {
                 expect(strings[0]).to.have.string(TEST_FILE);
@@ -148,7 +148,7 @@ describe('chartroom stored graph list', function () {
         // Have our GUID generate return a known value
         process.env.DETERMINISTIC_GUID = GUID;
 
-        robot_helpers.graphMeFrom(GOOD_TARGET)
+        robotHelpers.graphMeFrom(GOOD_TARGET)
             .then(function (strings) {
                 expect(strings[0]).to.have.string(TEST_FILE);
 

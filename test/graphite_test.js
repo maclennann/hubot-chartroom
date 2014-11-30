@@ -3,13 +3,12 @@
 'use strict';
 
 var chai = require('chai');
-var sinon = require('sinon');
 chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 describe('graphite operations', function () {
     //var nock = require('nock'),
-    var http_helpers = require('./http_mock_helpers'),
+    var httpHelpers = require('./http_mock_helpers'),
         Graph = require('../src/graphite.js'),
         fs = require('fs'),
 
@@ -24,7 +23,7 @@ describe('graphite operations', function () {
 
     // Set up our mock HTTP responses before each test
     beforeEach(function (done) {
-        http_helpers.setUp({
+        httpHelpers.setUp({
             GRAPHITE_SERVER: GRAPHITE_SERVER,
             TEST_FILE: TEST_FILE,
             GOOD_TARGET: GOOD_TARGET,
@@ -37,7 +36,7 @@ describe('graphite operations', function () {
     });
 
     afterEach(function (done) {
-        http_helpers.tearDown();
+        httpHelpers.tearDown();
         done();
     });
 
@@ -71,8 +70,8 @@ describe('graphite operations', function () {
         var graph = new Graph({
             target: GOOD_TARGET,
             server: GRAPHITE_SERVER,
-            room_id: ROOM_ID,
-            api_token: API_TOKEN,
+            roomId: ROOM_ID,
+            apiToken: API_TOKEN,
             guid: GUID
         });
 
@@ -86,8 +85,8 @@ describe('graphite operations', function () {
         var graph = new Graph({
             target: GOOD_TARGET,
             server: GRAPHITE_SERVER,
-            room_id: ROOM_ID,
-            api_token: API_TOKEN,
+            roomId: ROOM_ID,
+            apiYoken: API_TOKEN,
             guid: 'garbage-guid-yo'
         });
 
@@ -104,8 +103,8 @@ describe('graphite operations', function () {
 
         expect(graph.target).to.be.equal(target);
         expect(graph.server).to.be.equal(process.env.GRAPHITE_SERVER);
-        expect(graph.room_id).to.be.equal(process.env.GRAPH_ROOM_ID);
-        expect(graph.api_token).to.be.equal(process.env.HIPCHAT_TOKEN);
+        expect(graph.roomId).to.be.equal(process.env.GRAPH_ROOM_ID);
+        expect(graph.apiToken).to.be.equal(process.env.HIPCHAT_TOKEN);
 
         done();
     });

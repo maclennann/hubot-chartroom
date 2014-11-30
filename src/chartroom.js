@@ -46,9 +46,9 @@ module.exports = function (robot) {
     robot.respond(/forget graph (\w*)/i, function (msg) {
         var name = msg.match[1].trim(),
             graphs = robot.brain.get('graphs') || [],
-            new_graphs = graphs.filter(function (e) { return e.name !== name; });
+            newGraphs = graphs.filter(function (e) { return e.name !== name; });
 
-        robot.brain.set('graphs', new_graphs);
+        robot.brain.set('graphs', newGraphs);
         msg.send(SUCCESS_MESSAGE);
     });
 
@@ -63,12 +63,12 @@ module.exports = function (robot) {
         var target = msg.match[1].trim(),
             from = msg.match[3],
             graphs = robot.brain.get('graphs') || [],
-            target_arr = graphs.filter(function (e) { return e.name === target; }),
+            targetArr = graphs.filter(function (e) { return e.name === target; }),
             graph;
 
         // Is this one of our saved arrays?
-        if (target_arr.length > 0) {
-            target = target_arr[0].target;
+        if (targetArr.length > 0) {
+            target = targetArr[0].target;
         }
 
         // Has the user specified a time range?
@@ -79,9 +79,8 @@ module.exports = function (robot) {
         graph = new Graph({
             target: target,
             server: GRAPHITE_SERVER,
-            room_id: GRAPH_ROOM_ID,
-            api_token: HIPCHAT_TOKEN,
-            known_guid: DETERMINISTIC_GUID
+            roomId: GRAPH_ROOM_ID,
+            apiToken: HIPCHAT_TOKEN
         });
 
         msg.send(SUCCESS_MESSAGE + " Fetching graph and uploading to HipChat...");
