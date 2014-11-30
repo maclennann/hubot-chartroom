@@ -15,6 +15,11 @@ var generateGuid = function () {
                 .substring(1);
         }
         return function () {
+            if(process.env.DETERMINISTIC_GUID !== undefined) {
+                console.warn("Non-random GUID: " + process.env.DETERMINISTIC_GUID);
+                return process.env.DETERMINISTIC_GUID;
+            }
+
             return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
                 s4() + '-' + s4() + s4() + s4();
         };
@@ -35,7 +40,7 @@ function image(options) {
 
     // This GUID is used to idenfity the message containing
     // the image once it has been shared in HipChat
-    me.guid = options.guid || generateGuid();
+    me.guid = options.guid || generateGuid()();
 
     // This will hold the buffer with the image data
     me.image = undefined;

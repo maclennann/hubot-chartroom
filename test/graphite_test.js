@@ -8,48 +8,36 @@ chai.use(require('sinon-chai'));
 var expect = chai.expect;
 
 describe('graphite operations', function () {
-    var nock = require('nock'),
+    //var nock = require('nock'),
+    var http_helpers = require('./http_mock_helpers'),
         Graph = require('../src/graphite.js'),
         fs = require('fs'),
 
         // Test data setup
-        GRAPHITE_SERVER = "graphite.normmaclennan.com",
+        GRAPHITE_SERVER = process.env.GRAPHITE_SERVER,
         TEST_FILE = './test/test-data/test-image.png',
         GOOD_TARGET = "target=test",
         BAD_TARGET = "lolwut",
-        ROOM_ID = '12345',
-        API_TOKEN = 'ABCDEF',
+        ROOM_ID = process.env.GRAPH_ROOM_ID,
+        API_TOKEN = process.env.HIPCHAT_TOKEN,
         GUID = "not-a-guid-really";
 
     // Set up our mock HTTP responses before each test
     beforeEach(function (done) {
-        // Mock HTTP response for graphite calls.
-        nock("http://" + GRAPHITE_SERVER)
-            .get('/render?format=png&' + GOOD_TARGET)
-            .replyWithFile(200, TEST_FILE);
+        http_helpers.setUp({
+            GRAPHITE_SERVER: GRAPHITE_SERVER,
+            TEST_FILE:TEST_FILE,
+            GOOD_TARGET:GOOD_TARGET,
+            ROOM_ID:ROOM_ID,
+            API_TOKEN:API_TOKEN,
+            GUID:GUID
+        });
 
-        // Mock HTTP responses for HipChat calls
-        nock("https://api.hipchat.com")
-            .post('/v2/room/' + ROOM_ID + '/share/file?auth_token=' + API_TOKEN)
-            .reply(204)
-            .get('/v2/room/' + ROOM_ID + '/history?reverse=false&max-results=10&auth_token=' + API_TOKEN)
-            .reply(200, {
-                "items": [
-                    {
-                        "date": "2014-11-29T17:10:49.250773+00:00",
-                        "file": {
-                            "name": "upload.png",
-                            "size": 4851,
-                            "thumb_url": TEST_FILE,
-                            "url": TEST_FILE
-                        },
-                        "id": "85ba004c-0fdd-49ed-b6df-1c554d2ff00c",
-                        "mentions": [],
-                        "message": GUID,
-                        "type": "message"
-                    }
-                ]
-            });
+        done();
+    });
+
+    afterEach(function (done) {
+        http_helpers.tearDown();
         done();
     });
 
@@ -110,11 +98,8 @@ describe('graphite operations', function () {
     });
 
     it('should use environment variable where no overrides are provided', function (done) {
+        // EnvVars are set in `.env` at the root of this project
         var target = "target=local", graph;
-        process.env.GRAPHITE_SERVER = "www.google.com";
-        process.env.GRAPH_ROOM_ID = "my-room";
-        process.env.HIPCHAT_TOKEN = "my-token";
-
         graph = new Graph(target);
 
         expect(graph.target).to.be.equal(target);
@@ -127,7 +112,7 @@ describe('graphite operations', function () {
 
     it('should generate a valid guid when no id is provided', function (done) {
         var graph = new Graph(GOOD_TARGET);
-        expect(graph.guid()).to.match(/[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/i);
+        expect(graph.guid).to.match(/[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}/i);
 
         done();
     });

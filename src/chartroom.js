@@ -36,6 +36,7 @@
 var GRAPHITE_SERVER = process.env.GRAPHITE_SERVER;
 var GRAPH_ROOM_ID = process.env.GRAPH_ROOM_ID;
 var HIPCHAT_TOKEN = process.env.HIPCHAT_TOKEN;
+var DETERMINISTIC_GUID = process.env.DETERMINISTIC_GUID;
 var SUCCESS_MESSAGE = "(yougotitdude)";
 
 var Graph = require('./graphite.js');
@@ -79,16 +80,21 @@ module.exports = function (robot) {
             target: target,
             server: GRAPHITE_SERVER,
             room_id: GRAPH_ROOM_ID,
-            api_token: HIPCHAT_TOKEN
+            api_token: HIPCHAT_TOKEN,
+            known_guid: DETERMINISTIC_GUID
         });
 
         msg.send(SUCCESS_MESSAGE + " Fetching graph and uploading to HipChat...");
 
         // Fetch the graph from Graphite
         graph.fetch()
-            .then(graph.upload)
-            .then(graph.getLink)
-            .then(msg.send);
+        .then(function (string) {
+            return graph.upload();
+        }).then(function () {
+            return graph.getLink();
+        }).then(function (link) {
+            msg.send(link);
+        });
 
     });
 

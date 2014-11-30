@@ -32,134 +32,48 @@ describe('chartroom setup', function () {
 });
 
 describe('chartroom stored graph list', function () {
-    // Sorry, hubot-mock-adapter requires coffeescript :(
-    require('coffee-script/register');
-    var robot, user, adapter,
-        path = require('path'),
-        Robot = require('../node_modules/hubot-mock-adapter/node_modules/hubot/src/robot'),
-        TextMessage = require('../node_modules/hubot-mock-adapter/node_modules/hubot/src/message').TextMessage,
-        Promise = require('node-promise').Promise;
+    var robot_helpers = require('./chartroom_test_helpers'),
+        http_helpers = require('./http_mock_helpers'),
+        GRAPHITE_SERVER = process.env.GRAPHITE_SERVER,
+        GOOD_TARGET = "target=test",
+        ROOM_ID = process.env.GRAPH_ROOM_ID,
+        API_TOKEN = process.env.HIPCHAT_TOKEN,
+        TEST_FILE = './test/test-data/test-image.png',
+        GUID = 'im-a-good-guid'
 
     beforeEach(function (done) {
-        // create new robot, without http, using the mock adapter
-        robot = new Robot(null, "mock-adapter", false, "hubot");
-
-        robot.adapter.on("connected", function () {
-            // only load scripts we absolutely need
-            process.env.HUBOT_AUTH_ADMIN = "1";
-            robot.loadFile(
-                path.resolve(
-                    path.join("../hubot-mock-adapter/node_modules/hubot/src/scripts")
-                )
-            );
-
-            // load the module under test and configure it for the
-            // robot.  This is in place of external-scripts
-            require("../index")(robot);
-
-            // create a user
-            user = robot.brain.userForId("1", {
-                name: "jasmine",
-                room: "#jasmine"
-            });
-
-            adapter = robot.adapter;
+        robot_helpers.setUp();
+        http_helpers.setUp({
+            GRAPHITE_SERVER: GRAPHITE_SERVER,
+            GOOD_TARGET: GOOD_TARGET,
+            ROOM_ID:ROOM_ID,
+            API_TOKEN:API_TOKEN,
+            TEST_FILE: TEST_FILE,
+            GUID: GUID
         });
-
-        robot.run();
-
         done();
     });
 
     afterEach(function () {
-        robot.shutdown();
+        robot_helpers.tearDown();
+        http_helpers.tearDown();
     });
 
-
-    function saveGraph(target, name) {
-        var promise = new Promise();
-        adapter.once('send', function (envelope, strings) {
-            promise.resolve(strings);
-        });
-
-        adapter.receive(new TextMessage(user, "hubot save graph " + name + " as " + target));
-
-        return promise;
-    }
-
-    function listGraphs() {
-        var promise = new Promise();
-        adapter.once('send', function (envelope, strings) {
-            promise.resolve(strings);
-        });
-
-        adapter.receive(new TextMessage(user, "hubot list graphs"));
-
-        return promise;
-    }
-
-    function forgetGraph(name) {
-        var promise = new Promise();
-        adapter.once('send', function (envelope, strings) {
-            promise.resolve(strings);
-        });
-
-        adapter.receive(new TextMessage(user, "hubot forget graph " + name));
-
-        return promise;
-    }
-
-    function assertSaveGraph(target, name) {
-        var promise = new Promise();
-        saveGraph(target, name)
-            .then(function (strings) {
-                expect(strings[0]).to.have.string('You can now use "graph me '
-                    + name + '" to see this graph');
-                promise.resolve();
-            });
-
-        return promise;
-    }
-
-    function assertGraphs(number) {
-        var promise = new Promise();
-
-        listGraphs()
-            .then(function (strings) {
-                expect(strings[0]).to.have.string('Saved graphs found: ' + number);
-                promise.resolve();
-            });
-
-        return promise;
-    }
-
-    function assertForgetGraph(name) {
-        var promise = new Promise();
-
-        forgetGraph(name)
-            .then(function (strings) {
-                expect(strings[0]).to.have.string('(yougotitdude)');
-                promise.resolve();
-            });
-
-        return promise;
-    }
-
     it('should save graphs', function (done) {
-        assertGraphs(0)
+        robot_helpers.assertGraphs(0)
             .then(function () {
-                return assertSaveGraph("target=lol", "lolgraph");
+                return robot_helpers.assertSaveGraph("target=lol", "lolgraph");
             })
             .then(function () {
-                assertGraphs(1);
+                robot_helpers.assertGraphs(1);
                 done();
             });
     });
 
     it('should not save two graphs with the same name', function (done) {
-        assertSaveGraph('target=lol', 'lolgraph')
+        robot_helpers.assertSaveGraph('target=lol', 'lolgraph')
             .then(function () {
-                return saveGraph('target=broken', 'lolgraph');
+                return robot_helpers.saveGraph('target=broken', 'lolgraph');
             })
             .then(function (strings) {
                 expect(strings[0]).to.have.string('Graph lolgraph already exists.');
@@ -168,13 +82,40 @@ describe('chartroom stored graph list', function () {
     });
 
     it('should forget graphs', function (done) {
-        assertSaveGraph('target=lol', 'lolgraph')
+        robot_helpers.assertSaveGraph('target=lol', 'lolgraph')
             .then(function () {
-                return assertForgetGraph('lolgraph');
+                return robot_helpers.assertForgetGraph('lolgraph');
             })
             .then(function () {
-                assertGraphs(0);
+                robot_helpers.assertGraphs(0);
                 done();
             });
+    });
+
+    it('should forget all graphs', function (done) {
+        robot_helpers.assertSaveGraph('target=lol', 'lolgraph')
+            .then(robot_helpers.assertForgetAllGraphs)
+            .then(function () {
+                robot_helpers.assertGraphs(0);
+                done();
+            });
+    });
+
+    it('should fetch the correct saved graph', function (done) {
+        // Have our GUID generate return a known value
+        process.env.DETERMINISTIC_GUID=GUID
+
+        robot_helpers.assertSaveGraph(GOOD_TARGET, 'graph')
+            .then(function () {
+                return robot_helpers.graphMe('graph');
+            })
+            .then(function (strings) {
+                expect(strings[0]).to.have.string(TEST_FILE);
+
+                // Put the GUID generated back to random
+                delete process.env["DETERMINISTIC_GUID"];
+                done();
+            });
+
     });
 });
