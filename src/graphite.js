@@ -15,7 +15,7 @@ var generateGuid = function () {
                 .substring(1);
         }
         return function () {
-            if(process.env.DETERMINISTIC_GUID !== undefined) {
+            if (process.env.DETERMINISTIC_GUID !== undefined) {
                 console.warn("Non-random GUID: " + process.env.DETERMINISTIC_GUID);
                 return process.env.DETERMINISTIC_GUID;
             }

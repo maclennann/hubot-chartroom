@@ -1,5 +1,5 @@
 /*jslint node:true,stupid:true*/
-/*global describe:true,beforeEach:true,expect:true,it:true*/
+/*global describe:true,beforeEach:true,expect:true,it:true,afterEach:true*/
 'use strict';
 
 var chai = require('chai');
@@ -26,11 +26,11 @@ describe('graphite operations', function () {
     beforeEach(function (done) {
         http_helpers.setUp({
             GRAPHITE_SERVER: GRAPHITE_SERVER,
-            TEST_FILE:TEST_FILE,
-            GOOD_TARGET:GOOD_TARGET,
-            ROOM_ID:ROOM_ID,
-            API_TOKEN:API_TOKEN,
-            GUID:GUID
+            TEST_FILE: TEST_FILE,
+            GOOD_TARGET: GOOD_TARGET,
+            ROOM_ID: ROOM_ID,
+            API_TOKEN: API_TOKEN,
+            GUID: GUID
         });
 
         done();

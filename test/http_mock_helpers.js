@@ -1,3 +1,7 @@
+/*jslint node:true*/
+/*global exports:true*/
+'use strict';
+
 var nock = require('nock'),
     fs = require('fs');
 
@@ -29,8 +33,8 @@ exports.setUp = function (options) {
                 }
             ]
         });
-}
+};
 
 exports.tearDown = function () {
     nock.cleanAll();
-}
+};

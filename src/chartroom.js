@@ -88,13 +88,15 @@ module.exports = function (robot) {
 
         // Fetch the graph from Graphite
         graph.fetch()
-        .then(function (string) {
-            return graph.upload();
-        }).then(function () {
-            return graph.getLink();
-        }).then(function (link) {
-            msg.send(link);
-        });
+            .then(function () {
+                return graph.upload();
+            })
+            .then(function () {
+                return graph.getLink();
+            })
+            .then(function (link) {
+                msg.send(link);
+            });
 
     });
 

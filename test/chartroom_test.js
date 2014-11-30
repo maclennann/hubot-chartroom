@@ -39,15 +39,15 @@ describe('chartroom stored graph list', function () {
         ROOM_ID = process.env.GRAPH_ROOM_ID,
         API_TOKEN = process.env.HIPCHAT_TOKEN,
         TEST_FILE = './test/test-data/test-image.png',
-        GUID = 'im-a-good-guid'
+        GUID = 'im-a-good-guid';
 
     beforeEach(function (done) {
         robot_helpers.setUp();
         http_helpers.setUp({
             GRAPHITE_SERVER: GRAPHITE_SERVER,
             GOOD_TARGET: GOOD_TARGET,
-            ROOM_ID:ROOM_ID,
-            API_TOKEN:API_TOKEN,
+            ROOM_ID: ROOM_ID,
+            API_TOKEN: API_TOKEN,
             TEST_FILE: TEST_FILE,
             GUID: GUID
         });
@@ -103,7 +103,7 @@ describe('chartroom stored graph list', function () {
 
     it('should fetch the correct saved graph', function (done) {
         // Have our GUID generate return a known value
-        process.env.DETERMINISTIC_GUID=GUID
+        process.env.DETERMINISTIC_GUID = GUID;
 
         robot_helpers.assertSaveGraph(GOOD_TARGET, 'graph')
             .then(function () {
@@ -113,7 +113,7 @@ describe('chartroom stored graph list', function () {
                 expect(strings[0]).to.have.string(TEST_FILE);
 
                 // Put the GUID generated back to random
-                delete process.env["DETERMINISTIC_GUID"];
+                delete process.env.DETERMINISTIC_GUID;
                 done();
             });
 
