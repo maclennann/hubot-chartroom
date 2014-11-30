@@ -72,7 +72,7 @@ module.exports = function (robot) {
         }
 
         // Has the user specified a time range?
-        if (from) {
+        if (from && from !== "undefined") {
             target = target + "&from=" + from.trim();
         }
 

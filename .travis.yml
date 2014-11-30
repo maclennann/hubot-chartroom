@@ -4,15 +4,17 @@ node_js:
 - '0.10'
 notifications:
   email: false
-  hipchat:
-    rooms:
-      secure: Yymc+Um4yfzjjse905UspZS8oT8Q5CH1Jff2uI/cPeSH80WxQ5cerStmd5G1aMKus4PZuY/SqUq+m6Hw92ROKdtGZ5k9gHuX6Q1eD8d7OCZ0YShE+z9nyabICQ1gKNqUpvUutVmNPEMLDBtAB1pulzN2MPeMdjbxM+Pi0MofB8s=
+#  hipchat:
+#    rooms:
+#      secure: Yymc+Um4yfzjjse905UspZS8oT8Q5CH1Jff2uI/cPeSH80WxQ5cerStmd5G1aMKus4PZuY/SqUq+m6Hw92ROKdtGZ5k9gHuX6Q1eD8d7OCZ0YShE+z9nyabICQ1gKNqUpvUutVmNPEMLDBtAB1pulzN2MPeMdjbxM+Pi0MofB8s=
+script:
+  - npm run-script preflight
 addons:
   code_climate:
     repo_token:
       secure: la7PyRNeeXUKkCre0nZdJp/Qbecbk8BsCtQ0gjm1ipZ/w76KpnV46ktF3W42PRbjRIp46ex4nQJ4KS6E1gYoA+WNnooWO3L64qoQ++RSrCu2HogFZyI913bqjcP1TsPTynosXOkae8IKnqxWjnIL9Lb6VNNUN9rwnEO4TgvRIxM=
 after_script:
-- cat coverage/lcov.info | ./node_modules/.bin/codeclimate
+  - cat coverage/lcov.info | ./node_modules/.bin/codeclimate
 deploy:
   provider: npm
   email: norm.maclennan@gmail.com

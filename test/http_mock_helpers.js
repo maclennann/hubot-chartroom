@@ -9,6 +9,8 @@ exports.setUp = function (options) {
     // Mock HTTP response for graphite calls.
     nock("http://" + options.GRAPHITE_SERVER)
         .get('/render?format=png&' + options.GOOD_TARGET)
+        .replyWithFile(200, options.TEST_FILE)
+        .get('/render?format=png&' + options.GOOD_TARGET + '&from=-2h')
         .replyWithFile(200, options.TEST_FILE);
 
     // Mock HTTP responses for HipChat calls

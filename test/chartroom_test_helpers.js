@@ -112,6 +112,26 @@ exports.graphMe = function (name) {
     return promise;
 };
 
+exports.graphMeFrom = function (name, from) {
+    var promise = new Promise(),
+        messages = 0;
+
+    adapter.on('send', function (envelope, strings) {
+        // We need to resolve on the second message
+        // since the first one is just a "working..."
+        // confirmation
+        messages += 1;
+        if (messages === 2) {
+            promise.resolve(strings);
+            adapter.removeAllListeners('send');
+        }
+    });
+
+    adapter.receive(new TextMessage(user, "hubot graph me " + name + " from " + from));
+
+    return promise;
+};
+
 exports.assertSaveGraph = function (target, name) {
     var promise = new Promise();
     exports.saveGraph(target, name)

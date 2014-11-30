@@ -1,8 +1,8 @@
-/*jslint node:true,unparam:true,todo:true*/
+/*jslint node:true,unparam:true*/
 'use strict';
 
 var request = require('request');
-var PromiseClass = require('node-promise').Promise;
+var Promise = require('node-promise').Promise;
 var util = require('util');
 
 // Generate a GUID
@@ -26,12 +26,14 @@ var generateGuid = function () {
     };
 
 function image(options) {
-    var me = this;
+    var me = image.prototype;
 
     if (typeof options === "object" && options.hasOwnProperty("target")) {
         me.target = options.target;
     } else if (typeof options === "string") {
         me.target = options;
+    } else {
+        return undefined;
     }
 
     me.server = options.server || process.env.GRAPHITE_SERVER;
@@ -54,7 +56,7 @@ function image(options) {
 image.prototype = {
     // Fetch the image data from Graphite and save it into a Buffer
     fetch: function () {
-        var promise = new PromiseClass(),
+        var promise = new Promise(),
             me = this;
 
         // Set encoding:null so we get it back as a buffer - we need that to send it
@@ -74,7 +76,7 @@ image.prototype = {
     // Share our image buffer with the predetermined HipChat room
     upload: function () {
         var me = this,
-            promise = new PromiseClass();
+            promise = new Promise();
 
         request({
             method: "POST",
@@ -92,11 +94,7 @@ image.prototype = {
                     body: me.image
                 }]
         },
-            function (e) {
-                if (e) {
-                    promise.resolve("failed to upload graph: " + e);
-                }
-
+            function () {
                 promise.resolve();
             });
 
@@ -104,17 +102,12 @@ image.prototype = {
     },
     // Find the URL of the image associated with our GUID
     getLink: function () {
-        var promise = new PromiseClass(),
+        var promise = new Promise(),
             me = this;
 
         // Fetch some recent history from the room and try to find our
         // image's GUID. Then harvest the file URL from the message
         request(me.history_url, function (e, r, b) {
-            if (e) {
-                promise.resolve("Failed to fetch graph URL from graph room. " + e);
-                return;
-            }
-
             var messages = JSON.parse(b).items,
                 fileMessage = messages.filter(function (e) {
                     return e.message === me.guid;

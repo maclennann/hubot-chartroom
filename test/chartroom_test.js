@@ -101,6 +101,14 @@ describe('chartroom stored graph list', function () {
             });
     });
 
+    it('should quietly fail if graph to forget doesn\'t exist', function (done) {
+        robot_helpers.assertForgetGraph('lolgraph')
+            .then(function () {
+                robot_helpers.assertGraphs(0);
+                done();
+            });
+    });
+
     it('should fetch the correct saved graph', function (done) {
         // Have our GUID generate return a known value
         process.env.DETERMINISTIC_GUID = GUID;
@@ -117,5 +125,36 @@ describe('chartroom stored graph list', function () {
                 done();
             });
 
+    });
+
+    it('should fetch the correct saved graph from a specific timerange', function (done) {
+        // Have our GUID generate return a known value
+        process.env.DETERMINISTIC_GUID = GUID;
+
+        robot_helpers.assertSaveGraph(GOOD_TARGET, 'graph')
+            .then(function () {
+                return robot_helpers.graphMeFrom('graph', '-2h');
+            })
+            .then(function (strings) {
+                expect(strings[0]).to.have.string(TEST_FILE);
+
+                // Put the GUID generated back to random
+                delete process.env.DETERMINISTIC_GUID;
+                done();
+            });
+    });
+
+    it('should fetch a graph from an unsaved target', function (done) {
+        // Have our GUID generate return a known value
+        process.env.DETERMINISTIC_GUID = GUID;
+
+        robot_helpers.graphMeFrom(GOOD_TARGET)
+            .then(function (strings) {
+                expect(strings[0]).to.have.string(TEST_FILE);
+
+                // Put the GUID generated back to random
+                delete process.env.DETERMINISTIC_GUID;
+                done();
+            });
     });
 });

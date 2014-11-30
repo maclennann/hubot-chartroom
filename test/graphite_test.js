@@ -116,4 +116,10 @@ describe('graphite operations', function () {
 
         done();
     });
+
+    it('should return undefined when no target is provided', function (done) {
+        var graph = new Graph();
+        expect(graph).to.be.empty();
+        done();
+    });
 });

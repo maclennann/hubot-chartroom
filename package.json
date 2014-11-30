@@ -31,11 +31,14 @@
         "istanbul": "~0.3.2",
         "hubot-mock-adapter": "~1.0.0",
         "codeclimate-test-reporter": "0.0.4",
-        "coffee-script": "~1.8.0"
+        "coffee-script": "~1.8.0",
+        "sloc": "~0.1.7"
     },
     "main": "index.js",
     "scripts": {
         "test": "script/test",
-        "lint": "./node_modules/.bin/jslint ./*.js ./src/*.js ./test/*.js"
+        "lint": "./node_modules/.bin/jslint ./*.js ./src/*.js ./test/*.js",
+        "sloc": "./node_modules/.bin/sloc ./ -e 'node_modules*|coverage*'",
+        "preflight": "script/preflight"
     }
 }

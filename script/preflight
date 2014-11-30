@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# bootstrap environment
+source script/bootstrap
+
+npm run-script test || { 'Testing failed!'; exit 1;}
+npm run-script lint || { 'Linting failed!'; exit 1;}
+npm run-script sloc
