@@ -36,10 +36,11 @@
 var GRAPHITE_SERVER = process.env.GRAPHITE_SERVER;
 var GRAPH_ROOM_ID = process.env.GRAPH_ROOM_ID;
 var HIPCHAT_TOKEN = process.env.HIPCHAT_TOKEN;
-var SUCCESS_MESSAGE = "(yougotitdude)";
 
 var Graph = require('./graphite.js'),
-    brain = require('./brainOperations.js');
+    brain = require('./brainOperations.js'),
+    messages = require('./messages.js'),
+    util = require('util');
 
 module.exports = function (robot) {
     // Filter out graphs named <name> and save the results
@@ -49,13 +50,13 @@ module.exports = function (robot) {
             newGraphs = graphs.filter(function (e) { return e.name !== name; });
 
         brain.setGraphs(robot, newGraphs);
-        msg.send(SUCCESS_MESSAGE);
+        msg.send(messages.success);
     });
 
     // Empty the graphs array
     robot.respond(/forget all graphs/i, function (msg) {
         brain.setGraphs(robot, []);
-        msg.send(SUCCESS_MESSAGE);
+        msg.send(messages.success);
     });
 
     // Take a render URL or a saved graph name and fetch it
@@ -72,7 +73,7 @@ module.exports = function (robot) {
         // Figure out our intended render URL QSPs
         target = brain.getIntendedTarget(target, from, robot);
 
-        msg.send(SUCCESS_MESSAGE + " Fetching graph and uploading to HipChat...");
+        msg.send(util.format(messages.loading, messages.success));
 
         // Fetch the graph from Graphite
         // Upload it to the Chart Room
@@ -97,21 +98,21 @@ module.exports = function (robot) {
             target = msg.match[2].trim();
 
         if (brain.maybeGetSavedTarget(name, robot).length !== 0) {
-            msg.send("Graph " + name + " already exists. Please have me forget this graph first.");
+            msg.send(util.format(messages.alreadyExists, name));
             return;
         }
 
         brain.saveNewTarget(name, target, robot);
-        msg.send('You can now use "graph me ' + name + '" to see this graph');
+        msg.send(util.format(messages.savedGraph, name));
     });
 
     // List all saved graphs
     robot.respond(/list graphs/i, function (msg) {
         var graphs = brain.getGraphs(robot),
-            reply = "Saved graphs found: " + graphs.length;
+            reply = util.format(messages.listHeader, graphs.length);
 
         graphs.forEach(function (e) {
-            reply += "\n" + e.name + " - " + e.target;
+            reply += util.format(messages.listItem, e.name, e.target);
         });
 
         msg.send(reply);

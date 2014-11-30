@@ -4,6 +4,7 @@
 var request = require('request');
 var Promise = require('node-promise').Promise;
 var util = require('util');
+var messages = require('./messages.js');
 
 // Generate a GUID
 // Used to identify our uploaded graph message
@@ -16,7 +17,7 @@ var generateGuid = (function () {
         }
         return function () {
             if (process.env.DETERMINISTIC_GUID !== undefined) {
-                console.warn("Non-random GUID: " + process.env.DETERMINISTIC_GUID);
+                console.warn(util.format(messages.badGuid, process.env.DETERMINISTIC_GUID));
                 return process.env.DETERMINISTIC_GUID;
             }
 
@@ -106,13 +107,13 @@ image.prototype = {
         // Fetch some recent history from the room and try to find our
         // image's GUID. Then harvest the file URL from the message
         request(me.historyUrl, function (e, r, b) {
-            var messages = JSON.parse(b).items,
-                fileMessage = messages.filter(function (e) {
+            var items = JSON.parse(b).items,
+                fileMessage = items.filter(function (e) {
                     return e.message === guid;
                 });
 
             if (fileMessage.length === 0) {
-                promise.resolve("Failed to fetch graph URL from graph room. GUID not found.");
+                promise.resolve(messages.guidNotFound);
                 return;
             }
 
