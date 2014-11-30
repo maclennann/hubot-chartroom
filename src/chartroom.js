@@ -36,7 +36,6 @@
 var GRAPHITE_SERVER = process.env.GRAPHITE_SERVER;
 var GRAPH_ROOM_ID = process.env.GRAPH_ROOM_ID;
 var HIPCHAT_TOKEN = process.env.HIPCHAT_TOKEN;
-var DETERMINISTIC_GUID = process.env.DETERMINISTIC_GUID;
 var SUCCESS_MESSAGE = "(yougotitdude)";
 
 var Graph = require('./graphite.js');
