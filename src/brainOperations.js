@@ -1,6 +1,7 @@
-// All of the various robot brain operations taht go on.
+// All of the various robot brain operations that go on.
 // I got tired of writing string-literal 'graphs' everywhere
 
+/*jslint node:true*/
 'use strict';
 
 module.exports = {
