@@ -26,7 +26,7 @@ describe('chartroom setup', function () {
         expect(robot.respond).to.have.been.calledWith(/forget all graphs/i);
         expect(robot.respond).to.have.been.calledWith(/forget graph (\w*)/i);
         expect(robot.respond).to.have.been.calledWith(/graph me (\S*)( from )?([\-\d\w]*)$/i);
-        expect(robot.respond).to.have.been.calledWith(/save graph (\w*) as ([\S]*)( on )?(\w*)/i);
+        expect(robot.respond).to.have.been.calledWith(/save graph (\w*) as ([\S]*)( on )?([\-.\w]*)/i);
         done();
     });
 });
