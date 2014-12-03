@@ -63,15 +63,17 @@ module.exports = function (robot) {
     robot.respond(/graph me (\S*)( from )?([\-\d\w]*)$/i, function (msg) {
         var target = msg.match[1].trim(),
             from = msg.match[3],
-            // Construct our image repository
-            graph = new Graph({
-                server: GRAPHITE_SERVER,
-                roomId: GRAPH_ROOM_ID,
-                apiToken: HIPCHAT_TOKEN
-            });
+            graph;
 
         // Figure out our intended render URL QSPs
         target = brain.getIntendedTarget(target, from, robot);
+
+        // Construct our image repository
+        graph = new Graph({
+            server: target.server || GRAPHITE_SERVER,
+            roomId: GRAPH_ROOM_ID,
+            apiToken: HIPCHAT_TOKEN
+        });
 
         msg.send(util.format(messages.loading, messages.success));
 
@@ -79,7 +81,7 @@ module.exports = function (robot) {
         // Upload it to the Chart Room
         // Find the S3 URL
         // Return that to our requestor
-        graph.fetch(target)
+        graph.fetch(target.target)
             .then(function (buffer) {
                 return graph.upload(buffer);
             })
@@ -93,16 +95,21 @@ module.exports = function (robot) {
     });
 
     // Save a render URL with a friendly name
-    robot.respond(/save graph (\w*) as ([\S]*)/i, function (msg) {
+    robot.respond(/save graph (\w*) as ([\S]*)( on )?(\w*)/i, function (msg) {
         var name = msg.match[1].trim(),
-            target = msg.match[2].trim();
+            target = msg.match[2].trim(),
+            server = msg.match[4];
+
+        if (server !== undefined) {
+            server = server.trim();
+        }
 
         if (brain.maybeGetSavedTarget(name, robot).length !== 0) {
             msg.send(util.format(messages.alreadyExists, name));
             return;
         }
 
-        brain.saveNewTarget(name, target, robot);
+        brain.saveNewTarget(name, target, robot, server);
         msg.send(util.format(messages.savedGraph, name));
     });
 

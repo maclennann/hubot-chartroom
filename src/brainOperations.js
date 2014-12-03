@@ -16,24 +16,26 @@ module.exports = {
         var graphs = this.getGraphs(robot);
         return graphs.filter(function (e) { return e.name === name; });
     },
-    saveNewTarget: function (name, target, robot) {
+    saveNewTarget: function (name, target, robot, server) {
         var graphs = this.getGraphs(robot);
 
-        graphs.push({'name': name, 'target': target});
+        graphs.push({'name': name, 'target': target, 'server': server});
         this.setGraphs(robot, graphs);
 
         return graphs;
     },
     getIntendedTarget: function (name, from, robot) {
-        var targets = this.maybeGetSavedTarget(name, robot);
+        var targets = this.maybeGetSavedTarget(name, robot),
+            server;
         if (targets.length > 0) {
             name = targets[0].target;
+            server = targets[0].server;
         }
 
         if (from && from !== "undefined") {
             name = name + "&from=" + from.trim();
         }
 
-        return name;
+        return {server: server, target: name};
     }
 };

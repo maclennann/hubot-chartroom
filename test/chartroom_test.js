@@ -26,7 +26,7 @@ describe('chartroom setup', function () {
         expect(robot.respond).to.have.been.calledWith(/forget all graphs/i);
         expect(robot.respond).to.have.been.calledWith(/forget graph (\w*)/i);
         expect(robot.respond).to.have.been.calledWith(/graph me (\S*)( from )?([\-\d\w]*)$/i);
-        expect(robot.respond).to.have.been.calledWith(/save graph (\w*) as ([\S]*)/i);
+        expect(robot.respond).to.have.been.calledWith(/save graph (\w*) as ([\S]*)( on )?(\w*)/i);
         done();
     });
 });
@@ -119,6 +119,34 @@ describe('chartroom stored graph list', function () {
             })
             .then(function (strings) {
                 expect(strings[0]).to.have.string(TEST_FILE);
+
+                // Put the GUID generated back to random
+                delete process.env.DETERMINISTIC_GUID;
+                done();
+            });
+
+    });
+
+    it('should save graphs for non-default servers', function (done) {
+        // Have our GUID generate return a known value
+        process.env.DETERMINISTIC_GUID = GUID;
+        var nonDefaultGraphite = "nondefaultgraphite";
+
+
+        httpHelpers.makeGraphiteMock({
+            GRAPHITE_SERVER: nonDefaultGraphite,
+            GOOD_TARGET: "nondefaulttarget",
+            TEST_FILE: TEST_FILE
+        });
+
+        expect(httpHelpers.pendingMocksForServer(nonDefaultGraphite)).to.not.be.empty();
+
+        robotHelpers.assertSaveGraph("nondefaulttarget", "newgraph", nonDefaultGraphite)
+            .then(function () {
+                return robotHelpers.graphMe("newgraph");
+            }).then(function (strings) {
+                expect(strings[0]).to.have.string(TEST_FILE);
+                expect(httpHelpers.pendingMocksForServer(nonDefaultGraphite)).to.be.empty();
 
                 // Put the GUID generated back to random
                 delete process.env.DETERMINISTIC_GUID;
