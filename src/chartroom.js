@@ -95,7 +95,7 @@ module.exports = function (robot) {
     });
 
     // Save a render URL with a friendly name
-    robot.respond(/save graph (\w*) as ([\S]*)( on )?(\w*)/i, function (msg) {
+    robot.respond(/save graph (\w*) as ([\S]*)( on )?([\-.\w]*)/i, function (msg) {
         var name = msg.match[1].trim(),
             target = msg.match[2].trim(),
             server = msg.match[4];
