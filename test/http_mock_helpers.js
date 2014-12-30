@@ -2,18 +2,17 @@
 /*global exports:true*/
 'use strict';
 
-var nock = require('nock');
-
+var nock = require('nock'), scope = [];
 exports.setUp = function (options) {
     // Mock HTTP response for graphite calls.
-    nock("http://" + options.GRAPHITE_SERVER)
+    scope.push(nock("http://" + options.GRAPHITE_SERVER)
         .get('/render?format=png&' + options.GOOD_TARGET)
         .replyWithFile(200, options.TEST_FILE)
         .get('/render?format=png&' + options.GOOD_TARGET + '&from=-2h')
-        .replyWithFile(200, options.TEST_FILE);
+        .replyWithFile(200, options.TEST_FILE));
 
     // Mock HTTP responses for HipChat calls
-    nock("https://api.hipchat.com")
+    scope.push(nock("https://api.hipchat.com")
         .post('/v2/room/' + options.ROOM_ID + '/share/file?auth_token=' + options.API_TOKEN)
         .reply(204)
         .get('/v2/room/' + options.ROOM_ID + '/history?reverse=false&max-results=10&auth_token=' + options.API_TOKEN)
@@ -33,7 +32,28 @@ exports.setUp = function (options) {
                     "type": "message"
                 }
             ]
-        });
+        }));
+};
+
+exports.makeGraphiteMock = function (options) {
+    // Mock HTTP response for graphite calls.
+    scope.push(nock("http://" + options.GRAPHITE_SERVER)
+        .get('/render?format=png&' + options.GOOD_TARGET)
+        .replyWithFile(200, options.TEST_FILE));
+};
+
+exports.pendingMocksForServer = function (server) {
+    var remainingMocks = [];
+    scope.forEach(function (e) {
+        var mocks = e.pendingMocks();
+        remainingMocks.push(mocks.filter(function (i) {
+            return (i.indexOf(server) > -1);
+        }));
+    });
+
+    return remainingMocks.filter(function (e) {
+        return e.length > 0;
+    });
 };
 
 exports.tearDown = function () {

@@ -48,13 +48,17 @@ exports.tearDown = function () {
     robot.shutdown();
 };
 
-exports.saveGraph = function (target, name) {
-    var promise = new Promise();
+exports.saveGraph = function (target, name, server) {
+    var promise = new Promise(), message;
     adapter.once('send', function (envelope, strings) {
         promise.resolve(strings);
     });
 
-    adapter.receive(new TextMessage(user, "hubot save graph " + name + " as " + target));
+    message = "hubot save graph " + name + " as " + target;
+    if (server !== undefined && server !== "") {
+        message = message + " on " + server;
+    }
+    adapter.receive(new TextMessage(user, message));
 
     return promise;
 };
@@ -132,9 +136,9 @@ exports.graphMeFrom = function (name, from) {
     return promise;
 };
 
-exports.assertSaveGraph = function (target, name) {
+exports.assertSaveGraph = function (target, name, server) {
     var promise = new Promise();
-    exports.saveGraph(target, name)
+    exports.saveGraph(target, name, server)
         .then(function (strings) {
             expect(strings[0]).to.have.string('You can now use "graph me '
                 + name + '" to see this graph');
