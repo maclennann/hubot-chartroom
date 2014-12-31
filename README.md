@@ -80,3 +80,12 @@ Hubot finds the URL of the file in the message containing the above GUID and pos
 [Room: warroom]
 <Hubot> https://s3.amazonaws.com/uploads.hipchat.com/....etc
 ```
+
+### Using alternate Graphite servers for some graphs
+
+If you are insane like me and have multiple Graphite servers that are not clustered, you
+can have some graphs come from a non-default Graphite server. Simply specify it when saving your graph:
+
+```
+<Norm> hubot save graph jenkinscpu as target=collectd.jenkins001.CPU.load on alternate.graphite.fqdn.net
+```
